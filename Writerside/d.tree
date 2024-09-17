@@ -9,10 +9,13 @@
     <toc-element topic="devops.md">
         <toc-element topic="Sonatype.md"/>
         <toc-element topic="Ngrok.md"/>
-        <toc-element topic="Docker.md"/>
-        <toc-element topic="Install-Docker.md"/>
+        <toc-element topic="Docker.md">
+            <toc-element topic="Install-Docker.md"/>
+        </toc-element>
         <toc-element topic="Jenkins.md"/>
         <toc-element topic="SonarQube.md">
         </toc-element>
     </toc-element>
+    <toc-element topic="Instalacion-JAVA-LINUX.md"/>
+    <toc-element topic="LINUX-RECOMENDED.md"/>
 </instance-profile>
