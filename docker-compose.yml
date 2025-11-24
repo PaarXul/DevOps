@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  backend:
+    image: ${DOCKER_REGISTRY:-docker.io}/${DOCKER_NAMESPACE:-your-namespace}/${IMAGE_BACKEND:-app-backend}:${IMAGE_TAG:-latest}
+    container_name: app-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS=
+    networks:
+      - appnet
+
+  frontend:
+    image: ${DOCKER_REGISTRY:-docker.io}/${DOCKER_NAMESPACE:-your-namespace}/${IMAGE_FRONTEND:-app-frontend}:${IMAGE_TAG:-latest}
+    container_name: app-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+networks:
+  appnet: {}

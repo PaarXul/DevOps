@@ -268,3 +268,70 @@ you can also remove a volume
 docker volume rm volume_name # remove a volume
 
 ```
+
+
+## Plantillas Docker para Angular y Spring Boot
+Este repositorio incluye ejemplos listos para contenerizar un frontend Angular y un backend Spring Boot y orquestarlos con docker-compose.
+
+Estructura relevante:
+```
+/ (raíz)
+├─ Jenkinsfile
+├─ docker-compose.yml
+├─ frontend/
+│  └─ Dockerfile  (build Angular y servir con NGINX)
+└─ backend/
+   └─ Dockerfile  (build Maven y runtime JRE)
+```
+
+### Construir imágenes localmente
+Ejecuta desde la raíz del proyecto:
+```bash
+docker build -t your-namespace/app-frontend:latest -f frontend/Dockerfile frontend
+
+docker build -t your-namespace/app-backend:latest -f backend/Dockerfile backend
+```
+Si usas Docker Hub, reemplaza your-namespace por tu usuario u organización. Para otros registros, antepone el registro, por ejemplo: registry.example.com/your-namespace/app-frontend:latest.
+
+### Ejecutar con docker-compose
+El archivo docker-compose.yml permite levantar ambos servicios. Usa variables para apuntar a las imágenes deseadas.
+
+PowerShell (Windows):
+```powershell
+$env:DOCKER_REGISTRY="docker.io"
+$env:DOCKER_NAMESPACE="your-namespace"
+$env:IMAGE_TAG="latest"
+# Opcionalmente, personaliza los nombres de imagen
+# $env:IMAGE_FRONTEND="app-frontend"
+# $env:IMAGE_BACKEND="app-backend"
+
+docker compose up -d
+```
+
+Bash (Linux/macOS):
+```bash
+export DOCKER_REGISTRY=docker.io
+export DOCKER_NAMESPACE=your-namespace
+export IMAGE_TAG=latest
+# export IMAGE_FRONTEND=app-frontend
+# export IMAGE_BACKEND=app-backend
+
+docker compose up -d
+```
+Esto expondrá el backend en el puerto 8080 y el frontend en el puerto 80 por defecto.
+
+### Publicar imágenes en un registro
+```bash
+docker login
+
+docker push docker.io/your-namespace/app-frontend:latest
+docker push docker.io/your-namespace/app-backend:latest
+```
+Estas mismas acciones también pueden ejecutarse desde Jenkins si habilitas PUSH_IMAGES en el pipeline.
+
+### Notas de configuración
+- Angular: el Dockerfile copia el contenido de /app/dist al NGINX. Si tu build genera dist/<app-name>, asegúrate de que la carpeta exista tras el build o ajusta el Dockerfile (o pasa --build-arg APP_NAME=<app-name> y copia dist/<app-name>).
+- NGINX: si necesitas enrutar llamadas al backend (por ejemplo /api -> backend), agrega un archivo de configuración a /etc/nginx/conf.d (ver comentarios en el Dockerfile). Alternativamente, configura la URL del API en environment.ts para apuntar a http://localhost:8080/ o al dominio del backend.
+- Spring Boot: el runtime expone 8080. Ajusta JAVA_OPTS para memoria, perfiles, etc.
+- Redes: docker-compose crea una red appnet para que frontend y backend se resuelvan por nombre de servicio.
+- Seguridad: considera variables de entorno y secretos externos para credenciales.
